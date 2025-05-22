@@ -53,6 +53,15 @@ class Program
         }
     }
 
+    static double EuclideanDistance(double[] a, double[] b)
+    {
+        double sum = 0.0;
+        for (int i = 0; i < a.Length; i++)
+        {
+            sum += Math.Pow(a[i] - b[i], 2);
+        }
+        return Math.Sqrt(sum);
+    }
 
     static void Main()
     {
