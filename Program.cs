@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 
 class Program
@@ -22,13 +23,17 @@ class Program
         string filePath = "iris.txt";
         List<Sample> samples = LoadSamples(filePath);
 
+        foreach (var sample in samples)
+        {
+            Console.WriteLine($"Atrybuty: {string.Join(", ", sample.Attributes)} | Klasa: {sample.ClassLabel}");
+        }
+
         Console.WriteLine($"Wczytano {samples.Count} próbek.");
     }
 
     static List<Sample> LoadSamples(string filePath)
     {
         List<Sample> samples = new List<Sample>();
-
         string[] lines = File.ReadAllLines(filePath);
 
         foreach (string line in lines)
@@ -40,14 +45,14 @@ class Program
             double[] attributes = new double[4];
             for (int i = 0; i < 4; i++)
             {
-                attributes[i] = double.Parse(parts[i].Replace(",", "."));
+                attributes[i] = double.Parse(parts[i], CultureInfo.InvariantCulture);
             }
 
             int classLabel = int.Parse(parts[4]);
-
             samples.Add(new Sample(attributes, classLabel));
         }
 
         return samples;
     }
+
 }
