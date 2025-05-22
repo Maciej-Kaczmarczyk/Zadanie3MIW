@@ -18,6 +18,42 @@ class Program
         }
     }
 
+    static void NormalizeSamples(List<Sample> samples)
+    {
+        int attributeCount = samples[0].Attributes.Length;
+        double[] minValues = new double[attributeCount];
+        double[] maxValues = new double[attributeCount];
+
+        for (int i = 0; i < attributeCount; i++)
+        {
+            minValues[i] = double.MaxValue;
+            maxValues[i] = double.MinValue;
+        }
+
+        foreach (var sample in samples)
+        {
+            for (int i = 0; i < attributeCount; i++)
+            {
+                if (sample.Attributes[i] < minValues[i])
+                    minValues[i] = sample.Attributes[i];
+
+                if (sample.Attributes[i] > maxValues[i])
+                    maxValues[i] = sample.Attributes[i];
+            }
+        }
+
+        foreach (var sample in samples)
+        {
+            for (int i = 0; i < attributeCount; i++)
+            {
+                double min = minValues[i];
+                double max = maxValues[i];
+                sample.Attributes[i] = (sample.Attributes[i] - min) / (max - min);
+            }
+        }
+    }
+
+
     static void Main()
     {
         string filePath = "iris.txt";
@@ -29,6 +65,9 @@ class Program
         }
 
         Console.WriteLine($"Wczytano {samples.Count} próbek.");
+        NormalizeSamples(samples);
+        Console.WriteLine("Znormalizowano dane.");
+
     }
 
     static List<Sample> LoadSamples(string filePath)
