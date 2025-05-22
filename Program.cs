@@ -63,6 +63,33 @@ class Program
         return Math.Sqrt(sum);
     }
 
+    static int ClassifyKNN(Sample testSample, List<Sample> trainingSamples, int k)
+    {
+        var distances = new List<(Sample sample, double distance)>();
+
+        foreach (var sample in trainingSamples)
+        {
+            double distance = EuclideanDistance(testSample.Attributes, sample.Attributes);
+            distances.Add((sample, distance));
+        }
+
+        distances.Sort((a, b) => a.distance.CompareTo(b.distance));
+
+        var kNearest = distances.Take(k);
+
+        var classCounts = new Dictionary<int, int>();
+        foreach (var entry in kNearest)
+        {
+            int cls = entry.sample.ClassLabel;
+            if (!classCounts.ContainsKey(cls))
+                classCounts[cls] = 0;
+            classCounts[cls]++;
+        }
+
+        return classCounts.OrderByDescending(c => c.Value).First().Key;
+    }
+
+
     static void Main()
     {
         string filePath = "iris.txt";
