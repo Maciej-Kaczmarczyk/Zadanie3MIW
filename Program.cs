@@ -89,6 +89,27 @@ class Program
         return classCounts.OrderByDescending(c => c.Value).First().Key;
     }
 
+    static double OneVsRestValidation(List<Sample> samples, int k)
+    {
+        int correct = 0;
+
+        for (int i = 0; i < samples.Count; i++)
+        {
+            var testSample = samples[i];
+
+            var trainingSamples = new List<Sample>(samples);
+            trainingSamples.RemoveAt(i);
+
+            int predictedClass = ClassifyKNN(testSample, trainingSamples, k);
+
+            if (predictedClass == testSample.ClassLabel)
+                correct++;
+        }
+
+        return (double)correct / samples.Count * 100.0;
+    }
+
+
 
     static void Main()
     {
