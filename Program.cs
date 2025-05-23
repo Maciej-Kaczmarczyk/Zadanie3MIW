@@ -125,6 +125,12 @@ class Program
         NormalizeSamples(samples);
         Console.WriteLine("Znormalizowano dane.");
 
+        int k = 3;
+        double accuracy = OneVsRestValidation(samples, k);
+
+        Console.WriteLine($"Dokładność klasyfikacji k-NN (k={k}): {accuracy:F2}%");
+
+
     }
 
     static List<Sample> LoadSamples(string filePath)
