@@ -185,28 +185,56 @@ class Program
 
     static void Main()
     {
-        string filePath = "iris.txt";
+        Console.WriteLine("Podaj nazwę pliku z próbkami (np. iris.txt):");
+        string filePath = Console.ReadLine();
+
+        if (!File.Exists(filePath))
+        {
+            Console.WriteLine("Plik nie istnieje!");
+            return;
+        }
+
         List<Sample> samples = LoadSamples(filePath);
 
-        foreach (var sample in samples)
-        {
-            Console.WriteLine($"Atrybuty: {string.Join(", ", sample.Attributes)} | Klasa: {sample.ClassLabel}");
-        }
-
         Console.WriteLine($"Wczytano {samples.Count} próbek.");
+
         NormalizeSamples(samples);
-        foreach (var sample in samples)
+        Console.WriteLine("Znormalizowano dane.\n");
+
+        Console.WriteLine("Wybierz metrykę:");
+        Console.WriteLine("1 - Euklidesowa");
+        Console.WriteLine("2 - Manhattan");
+        Console.WriteLine("3 - Chebyshev");
+        Console.WriteLine("4 - Minkowski (p=3)");
+        Console.WriteLine("5 - Logarytmiczna");
+        Console.Write("Twój wybór: ");
+
+        if (!int.TryParse(Console.ReadLine(), out int metricChoice) || metricChoice < 1 || metricChoice > 5)
         {
-            Console.WriteLine($"Atrybuty: {string.Join(", ", sample.Attributes)} | Klasa: {sample.ClassLabel}");
+            Console.WriteLine("Nieprawidłowy wybór metryki.");
+            return;
         }
-        Console.WriteLine("Znormalizowano dane.");
 
-        int k = 3;
-        double accuracy = OneVsRestValidation(samples, k, EuclideanDistance);
+        Console.Write("Podaj wartość k: ");
+        if (!int.TryParse(Console.ReadLine(), out int k) || k < 1)
+        {
+            Console.WriteLine("Nieprawidłowa wartość k.");
+            return;
+        }
 
-        Console.WriteLine($"Dokładność klasyfikacji k-NN (k={k}): {accuracy:F2}%");
+        DistanceMetric selectedMetric = metricChoice switch
+        {
+            1 => EuclideanDistance,
+            2 => ManhattanDistance,
+            3 => ChebyshevDistance,
+            4 => (a, b) => MinkowskiDistance(a, b, 3),
+            5 => LogDistance,
+            _ => EuclideanDistance
+        };
+
+        double accuracy = OneVsRestValidation(samples, k, selectedMetric);
+        Console.WriteLine($"\nDokładność klasyfikacji k-NN (k={k}): {accuracy:F2}%");
     }
 
-    
 
 }
