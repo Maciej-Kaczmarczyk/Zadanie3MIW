@@ -63,6 +63,50 @@ class Program
         return Math.Sqrt(sum);
     }
 
+    static double ManhattanDistance(double[] a, double[] b)
+    {
+        double sum = 0.0;
+        for (int i = 0; i < a.Length; i++)
+        {
+            sum += Math.Abs(a[i] - b[i]);
+        }
+        return sum;
+    }
+
+    static double ChebyshevDistance(double[] a, double[] b)
+    {
+        double max = 0.0;
+        for (int i = 0; i < a.Length; i++)
+        {
+            double diff = Math.Abs(a[i] - b[i]);
+            if (diff > max)
+                max = diff;
+        }
+        return max;
+    }
+
+    static double MinkowskiDistance(double[] a, double[] b, int p = 3)
+    {
+        double sum = 0.0;
+        for (int i = 0; i < a.Length; i++)
+        {
+            sum += Math.Pow(Math.Abs(a[i] - b[i]), p);
+        }
+        return Math.Pow(sum, 1.0 / p);
+    }
+
+    static double LogDistance(double[] a, double[] b)
+    {
+        double sum = 0.0;
+        for (int i = 0; i < a.Length; i++)
+        {
+            double val1 = Math.Max(a[i], 0.00001);
+            double val2 = Math.Max(b[i], 0.00001);
+            sum += Math.Abs(Math.Log(val1) - Math.Log(val2));
+        }
+        return sum;
+    }
+
     static int ClassifyKNN(Sample testSample, List<Sample> trainingSamples, int k)
     {
         var distances = new List<(Sample sample, double distance)>();
