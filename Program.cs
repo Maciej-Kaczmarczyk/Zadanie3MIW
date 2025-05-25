@@ -212,6 +212,8 @@ class Program
         if (!int.TryParse(Console.ReadLine(), out int metricChoice) || metricChoice < 1 || metricChoice > 5)
         {
             Console.WriteLine("Nieprawidłowy wybór metryki.");
+            Console.WriteLine("Naciśnij Enter, aby zakończyć...");
+            Console.ReadLine();
             return;
         }
 
@@ -234,6 +236,9 @@ class Program
 
         double accuracy = OneVsRestValidation(samples, k, selectedMetric);
         Console.WriteLine($"\nDokładność klasyfikacji k-NN (k={k}): {accuracy:F2}%");
+
+        Console.WriteLine("Naciśnij Enter, aby zakończyć...");
+        Console.ReadLine();
     }
 
 
