@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using static Program;
 
 class Program
 {
@@ -53,7 +54,7 @@ class Program
         }
     }
 
-    static double EuclideanDistance(double[] a, double[] b)
+    public static double EuclideanDistance(double[] a, double[] b)
     {
         double sum = 0.0;
         for (int i = 0; i < a.Length; i++)
@@ -63,7 +64,7 @@ class Program
         return Math.Sqrt(sum);
     }
 
-    static double ManhattanDistance(double[] a, double[] b)
+    public static double ManhattanDistance(double[] a, double[] b)
     {
         double sum = 0.0;
         for (int i = 0; i < a.Length; i++)
@@ -73,7 +74,7 @@ class Program
         return sum;
     }
 
-    static double ChebyshevDistance(double[] a, double[] b)
+    public static double ChebyshevDistance(double[] a, double[] b)
     {
         double max = 0.0;
         for (int i = 0; i < a.Length; i++)
@@ -85,7 +86,7 @@ class Program
         return max;
     }
 
-    static double MinkowskiDistance(double[] a, double[] b, int p = 3)
+    public static double MinkowskiDistance(double[] a, double[] b, int p = 3)
     {
         double sum = 0.0;
         for (int i = 0; i < a.Length; i++)
@@ -95,7 +96,7 @@ class Program
         return Math.Pow(sum, 1.0 / p);
     }
 
-    static double LogDistance(double[] a, double[] b)
+    public static double LogDistance(double[] a, double[] b)
     {
         double sum = 0.0;
         for (int i = 0; i < a.Length; i++)
@@ -107,13 +108,16 @@ class Program
         return sum;
     }
 
-    static int ClassifyKNN(Sample testSample, List<Sample> trainingSamples, int k)
+
+    delegate double DistanceMetric(double[] a, double[] b);
+
+    static int ClassifyKNN(Sample testSample, List<Sample> trainingSamples, int k, DistanceMetric metric)
     {
         var distances = new List<(Sample sample, double distance)>();
 
         foreach (var sample in trainingSamples)
         {
-            double distance = EuclideanDistance(testSample.Attributes, sample.Attributes);
+            double distance = metric(testSample.Attributes, sample.Attributes);
             distances.Add((sample, distance));
         }
 
@@ -133,7 +137,7 @@ class Program
         return classCounts.OrderByDescending(c => c.Value).First().Key;
     }
 
-    static double OneVsRestValidation(List<Sample> samples, int k)
+    static double OneVsRestValidation(List<Sample> samples, int k, DistanceMetric metric)
     {
         int correct = 0;
 
@@ -144,7 +148,7 @@ class Program
             var trainingSamples = new List<Sample>(samples);
             trainingSamples.RemoveAt(i);
 
-            int predictedClass = ClassifyKNN(testSample, trainingSamples, k);
+            int predictedClass = ClassifyKNN(testSample, trainingSamples, k, metric);
 
             if (predictedClass == testSample.ClassLabel)
                 correct++;
@@ -157,6 +161,14 @@ class Program
 
     static void Main()
     {
+
+        var methods = typeof(Program).GetMethods().Where(m => 
+            m.IsStatic && 
+            m.ReturnType == typeof(double) && 
+            m.GetParameters().Length == 2 && 
+            m.GetParameters()[0].ParameterType == typeof(double[]) && 
+            m.GetParameters()[1].ParameterType == typeof(double[]));
+
         string filePath = "iris.txt";
         List<Sample> samples = LoadSamples(filePath);
 
@@ -170,11 +182,9 @@ class Program
         Console.WriteLine("Znormalizowano dane.");
 
         int k = 3;
-        double accuracy = OneVsRestValidation(samples, k);
+        double accuracy = OneVsRestValidation(samples, k, LogDistance);
 
         Console.WriteLine($"Dokładność klasyfikacji k-NN (k={k}): {accuracy:F2}%");
-
-
     }
 
     static List<Sample> LoadSamples(string filePath)
