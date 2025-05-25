@@ -19,6 +19,30 @@ class Program
         }
     }
 
+    static List<Sample> LoadSamples(string filePath)
+    {
+        List<Sample> samples = new List<Sample>();
+        string[] lines = File.ReadAllLines(filePath);
+
+        foreach (string line in lines)
+        {
+            string[] parts = line.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+
+            if (parts.Length < 5) continue;
+
+            double[] attributes = new double[4];
+            for (int i = 0; i < 4; i++)
+            {
+                attributes[i] = double.Parse(parts[i], CultureInfo.InvariantCulture);
+            }
+
+            int classLabel = int.Parse(parts[4]);
+            samples.Add(new Sample(attributes, classLabel));
+        }
+
+        return samples;
+    }
+
     static void NormalizeSamples(List<Sample> samples)
     {
         int attributeCount = samples[0].Attributes.Length;
@@ -161,14 +185,6 @@ class Program
 
     static void Main()
     {
-
-        var methods = typeof(Program).GetMethods().Where(m => 
-            m.IsStatic && 
-            m.ReturnType == typeof(double) && 
-            m.GetParameters().Length == 2 && 
-            m.GetParameters()[0].ParameterType == typeof(double[]) && 
-            m.GetParameters()[1].ParameterType == typeof(double[]));
-
         string filePath = "iris.txt";
         List<Sample> samples = LoadSamples(filePath);
 
@@ -179,36 +195,18 @@ class Program
 
         Console.WriteLine($"Wczytano {samples.Count} próbek.");
         NormalizeSamples(samples);
+        foreach (var sample in samples)
+        {
+            Console.WriteLine($"Atrybuty: {string.Join(", ", sample.Attributes)} | Klasa: {sample.ClassLabel}");
+        }
         Console.WriteLine("Znormalizowano dane.");
 
         int k = 3;
-        double accuracy = OneVsRestValidation(samples, k, LogDistance);
+        double accuracy = OneVsRestValidation(samples, k, EuclideanDistance);
 
         Console.WriteLine($"Dokładność klasyfikacji k-NN (k={k}): {accuracy:F2}%");
     }
 
-    static List<Sample> LoadSamples(string filePath)
-    {
-        List<Sample> samples = new List<Sample>();
-        string[] lines = File.ReadAllLines(filePath);
-
-        foreach (string line in lines)
-        {
-            string[] parts = line.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
-
-            if (parts.Length < 5) continue;
-
-            double[] attributes = new double[4];
-            for (int i = 0; i < 4; i++)
-            {
-                attributes[i] = double.Parse(parts[i], CultureInfo.InvariantCulture);
-            }
-
-            int classLabel = int.Parse(parts[4]);
-            samples.Add(new Sample(attributes, classLabel));
-        }
-
-        return samples;
-    }
+    
 
 }
